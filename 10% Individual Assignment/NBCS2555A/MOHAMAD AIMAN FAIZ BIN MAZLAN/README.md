@@ -17,47 +17,57 @@
 
 # 1. Project Overview
 
-This project evaluates HTTP response behavior under concurrent load using **k6** on a public API service.
+This project evaluates HTTP response behavior under concurrent load using **k6 performance testing tool** on a public API service.
 
-Target API:
+The selected target API is:
 
-https://httpbin.org/
+👉 https://httpbin.org/
 
-The system is tested under different network conditions to simulate real-world API behavior such as normal traffic, latency, and failure responses.
+This service is used to simulate real-world HTTP behavior, including:
 
-Performance results are monitored using **InfluxDB** and visualized using **Grafana**.
+- Normal request handling
+- Delayed network response
+- Server error simulation
+
+The main objective is to analyze how a web API performs under different concurrency levels and identify system bottlenecks.
+
+Performance data is collected using **InfluxDB** and visualized using **Grafana dashboards**.
 
 ---
 
 # 2. Problem Statement
 
-Modern APIs must handle concurrent users efficiently. When traffic increases, systems may experience:
+Modern web APIs must handle concurrent user requests efficiently.
 
-- Increased response time
-- Reduced throughput
-- Higher error rates
+However, under high traffic conditions, systems may experience:
 
-This project analyzes these behaviors using structured performance testing.
+- Increased response time  
+- Reduced throughput  
+- Higher error rates  
+
+Therefore, performance testing is essential to evaluate system stability, scalability, and reliability under load.
 
 ---
 
 # 3. Objectives
 
-- Evaluate HTTP response under concurrent load  
+- Evaluate HTTP response behavior under concurrent load  
 - Measure response time and throughput  
-- Identify system bottlenecks  
-- Analyze failure behavior  
-- Visualize metrics using Grafana  
+- Identify system performance bottlenecks  
+- Analyze failure behavior under stress conditions  
+- Visualize performance metrics using Grafana  
 
 ---
 
 # 4. Tools Used
 
-- k6 (Performance Testing)
-- Grafana (Visualization)
-- InfluxDB (Metrics Storage)
-- Docker (Container Environment)
-- httpbin.org (Test API)
+| Tool | Purpose |
+|------|--------|
+| k6 | Performance and load testing |
+| Grafana | Real-time visualization |
+| InfluxDB 1.8 | Time-series metrics storage |
+| Docker | Containerized environment |
+| httpbin.org | Public API test service |
 
 ---
 
@@ -66,110 +76,47 @@ This project analyzes these behaviors using structured performance testing.
 ## 5.1 Baseline Throughput Test
 
 **Endpoint:** `/get`  
-**Users:** 30 VUs  
+**Virtual Users:** 30  
 **Duration:** 1 minute  
 
 ### Purpose:
 - Measure normal API performance  
 - Establish baseline throughput  
-- Verify system stability  
+- Validate system stability under normal conditions  
 
 ---
 
 ## 5.2 Latency Stress Test
 
 **Endpoint:** `/delay/2`  
-**Users:** 0 → 60 VUs  
+**Virtual Users:** 0 → 60  
 **Duration:** 2 minutes  
 
 ### Purpose:
-- Simulate network delay  
+- Simulate network latency conditions  
 - Observe response time degradation  
-- Analyze performance under stress  
+- Analyze system behavior under increasing load  
 
 ---
 
 ## 5.3 Failure Behavior Test
 
 **Endpoint:** `/status/500`  
-**Users:** 25 VUs  
+**Virtual Users:** 25  
 **Duration:** 1 minute  
 
 ### Purpose:
-- Simulate server failure  
+- Simulate server failure response  
 - Measure error handling capability  
-- Observe system stability under errors  
+- Evaluate system stability under failure conditions  
 
 ---
 
 # 6. k6 Test Script
 
-```javascript
-import http from 'k6/http';
-import { check, sleep } from 'k6';
+📄 File: [`script.js`](./script.js)
 
-export const options = {
-  scenarios: {
-    "Baseline Throughput Test": {
-      executor: 'constant-vus',
-      vus: 30,
-      duration: '1m',
-      exec: 'baselineTest',
-    },
-
-    "Latency Stress Test": {
-      executor: 'ramping-vus',
-      stages: [
-        { duration: '30s', target: 20 },
-        { duration: '1m', target: 60 },
-        { duration: '30s', target: 0 },
-      ],
-      exec: 'latencyTest',
-    },
-
-    "Failure Behavior Test": {
-      executor: 'constant-vus',
-      vus: 25,
-      duration: '1m',
-      exec: 'failureTest',
-    },
-  },
-};
-
-export function baselineTest() {
-  const res = http.get('https://httpbin.org/get');
-
-  check(res, {
-    'status is 200': (r) => r.status === 200,
-  });
-
-  sleep(1);
-}
-
-export function latencyTest() {
-  const res = http.get('https://httpbin.org/delay/2');
-
-  check(res, {
-    'status is 200': (r) => r.status === 200,
-  });
-
-  sleep(1);
-}
-
-export function failureTest() {
-  const res = http.get('https://httpbin.org/status/500');
-
-  check(res, {
-    'status is 500': (r) => r.status === 500,
-  });
-
-  sleep(1);
-}
-```
-
----
-
-# 7. Execution Command
+## Execution Command
 
 ```bash
 $env:K6_OUT="influxdb=http://localhost:8086/k6"
@@ -178,31 +125,86 @@ k6 run script.js
 
 ---
 
+## Script Summary
+
+The script includes:
+
+- Three performance test scenarios
+- Concurrent virtual user simulation
+- HTTP request validation using checks
+- Real-time metrics export to InfluxDB
+
+---
+
+# 7. System Architecture
+
+```
+k6 (Load Generator)
+        ↓
+InfluxDB (Metrics Storage)
+        ↓
+Grafana (Visualization Dashboard)
+```
+
+---
+
 # 8. Results Summary
 
 | Test Name | Observation |
 |-----------|------------|
-| Baseline Throughput Test | Stable response, high throughput |
-| Latency Stress Test | Increased response time under load |
-| Failure Behavior Test | Correct HTTP 500 error handling |
+| Baseline Throughput Test | Stable response time and high throughput |
+| Latency Stress Test | Noticeable increase in response time under load |
+| Failure Behavior Test | HTTP 500 errors correctly detected |
 
 ---
 
-# 9. Conclusion
+# 9. Performance Analysis
 
-This project successfully evaluates HTTP response behavior under concurrent load.
+## 9.1 Baseline Test
 
-Findings:
+- Stable response time  
+- No request failures  
+- High throughput performance  
 
-- System performs well under normal load
-- Performance degrades under stress conditions
-- Error handling works as expected
+## 9.2 Latency Stress Test
 
-Grafana provides clear visualization of system behavior.
+- Response time increases significantly  
+- Throughput decreases under load  
+- System delay observed under concurrency  
+
+## 9.3 Failure Behavior Test
+
+- HTTP 500 responses successfully captured  
+- Error rate increases as expected  
+- System remains stable under failure simulation  
 
 ---
 
-# 10. Video Demonstration
+# 10. Bottleneck Analysis
 
-YouTube link:
-https://youtube.com/
+Identified performance limitations:
+
+- Increased latency under concurrent users  
+- Reduced throughput during stress conditions  
+- Error handling behavior under failure scenarios  
+
+---
+
+# 11. Conclusion
+
+This project successfully demonstrates HTTP response behavior under concurrent load using k6.
+
+Key findings:
+
+- API performs efficiently under normal conditions  
+- Performance degrades under stress and latency simulation  
+- Failure responses are correctly handled and monitored  
+- Grafana provides effective visualization of system behavior  
+
+This confirms the importance of performance testing in network-based applications.
+
+---
+
+# 12. Video Demonstration
+
+👉 YouTube Link: https://youtube.com/
