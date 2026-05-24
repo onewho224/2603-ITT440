@@ -90,7 +90,7 @@ Measure normal API performance under expected usage.
 - Consistent throughput  
 
 📸 Evidence  
-![Baseline Test](screenshots/baseline.png)
+![Baseline Test](screenshots/grafana average response time.png)
 
 ---
 
@@ -109,7 +109,7 @@ Simulate delayed responses and increasing traffic.
 - System remains stable  
 
 📸 Evidence  
-![Latency Test](screenshots/latency.png)
+![Latency Test](screenshots/grafana requests per second.png)
 
 ---
 
@@ -128,7 +128,7 @@ Test system behavior under server error conditions.
 - System remains stable  
 
 📸 Evidence  
-![Failure Test](screenshots/failure.png)
+![Failure Test](screenshots/grafana http failure rate.png)
 
 ---
 
@@ -195,21 +195,21 @@ Each scenario simulates real-world API traffic conditions.
 # 13. System Evidence (Full Execution Proof)
 
 ## 🐳 Docker Containers Running
-![Docker](screenshots/docker.png)
+![Docker](screenshots/docker running.png)
 
 This shows both InfluxDB and Grafana running successfully.
 
 ---
 
 ## ⚡ k6 Execution Output
-![k6 Result](screenshots/k6-result.png)
+![k6 Result](screenshots/k6 finished.png)
 
 This confirms all 3 test scenarios executed successfully.
 
 ---
 
 ## 📊 Grafana Dashboard Overview
-![Grafana Dashboard](screenshots/grafana.png)
+![Grafana Dashboard](screenshots/grafana dashboard.png)
 
 Shows real-time metrics:
 - Response time
