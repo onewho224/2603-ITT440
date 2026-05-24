@@ -63,6 +63,7 @@ GET https://jsonplaceholder.typicode.com/posts
 
 ```bash id="x1ld91"
 vegeta attack -rate=10 -duration=30s -targets=targets.txt > load.bin
+vegeta report load.bin
 vegeta plot load.bin > load.html
 ```
 
@@ -70,6 +71,7 @@ vegeta plot load.bin > load.html
 
 ```bash id="x1ld91"
 vegeta attack -rate=100 -duration=30s -targets=targets.txt > stress.bin
+vegeta report stress.bin
 vegeta plot stress.bin > stress.html
 ```
 
@@ -77,6 +79,7 @@ vegeta plot stress.bin > stress.html
 
 ```bash id="x1ld91"
 vegeta attack -rate=200 -duration=10s -targets=targets.txt > spike.bin
+vegeta report spike.bin
 vegeta plot spike.bin > spike.html
 ```
 
